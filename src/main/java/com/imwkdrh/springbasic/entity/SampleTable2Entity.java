@@ -15,11 +15,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "st2")
-@Table(name = "sample_table_2")
+@Entity(name="st2")
+@Table(name="sample_table_2")
 public class SampleTable2Entity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer sampleAi;
     private Boolean sampleColumn;
 }
