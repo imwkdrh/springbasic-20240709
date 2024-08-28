@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -14,7 +15,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity(name = "user")
 @Table(name = "sample_user")
-public class SampleTableEntity {
+@ToString
+public class SampleUserEntity {
     @Id
     private String userId;
     private String password;

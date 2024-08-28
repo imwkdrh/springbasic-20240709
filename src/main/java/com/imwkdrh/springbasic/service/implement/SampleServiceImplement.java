@@ -1,12 +1,14 @@
 package com.imwkdrh.springbasic.service.implement;
-
+import java.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.imwkdrh.springbasic.dto.PostSample1RequestDto;
 import com.imwkdrh.springbasic.entity.SampleTable1Entity;
+import com.imwkdrh.springbasic.entity.SampleUserEntity;
 import com.imwkdrh.springbasic.repository.SampleTable1Repository;
+import com.imwkdrh.springbasic.repository.SampleUserRepository;
 import com.imwkdrh.springbasic.service.SampleService;
 
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SampleServiceImplement implements SampleService {
-
+    private final SampleUserRepository sampleUserRepository;
     private final SampleTable1Repository sampleTable1Repository;
 
     @Override
@@ -31,10 +33,8 @@ public class SampleServiceImplement implements SampleService {
         if (isExisted)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 존재하는 기본키입니다.");
 
-
         // CREATE (SQL : INSERT)
         // 1. Entity 클래스의 인스턴스 생성
-
 
         SampleTable1Entity entity = new SampleTable1Entity(sampleId, sampleColumn);
 
@@ -46,7 +46,6 @@ public class SampleServiceImplement implements SampleService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body("성공");
 
-        
     }
 
     @Override
@@ -59,10 +58,18 @@ public class SampleServiceImplement implements SampleService {
 
         // 2. repository를 이용하여 Entity에 해당하는 레코드 삭제
         // - 해당하는 레코드가 존재하지 않으면 수행 불가능
+
         SampleTable1Entity entity = sampleTable1Repository.findById(sampleId).get();
         sampleTable1Repository.delete(entity);
-        return ResponseEntity.status(HttpStatus.OK).body("성공");
-       
+        return ResponseEntity.status(HttpStatus.OK).body("삭제 성공");
+
     }
 
+    @Override
+    public ResponseEntity<String> queryString() {
+
+        List<SampleUserEntity> sampleUserEntities = sampleUserRepository.getNativeSql("홍길동","부산광역시");
+        return ResponseEntity.status(HttpStatus.OK).body(sampleUserEntities.toString());
+
+    }
 }
