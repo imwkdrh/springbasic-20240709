@@ -54,6 +54,7 @@ public class JwtProvider {
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         // JWT 생성
+        // String jwt = Jwts.builder().signWith(key, SignatureAlgorithm.HS256).setSubject(name).setIssuedAt(new Date()).setExpiration(expiredDate).compact();
         String jwt = Jwts.builder()
         // 서명 (암호화시 사용할 비밀키와 알고리즘을 전달)
         .signWith(key, SignatureAlgorithm.HS256)
