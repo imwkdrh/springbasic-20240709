@@ -11,4 +11,6 @@ public interface SampleService {
     ResponseEntity<String> queryString();
 
     String getJwt(String name);
+
+    String validateJwt(String jwt);
 }

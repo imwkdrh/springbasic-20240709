@@ -9,6 +9,7 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -44,11 +45,12 @@ public class JwtProvider {
     // - OS 부팅시에 Vault 서버에서 비밀키를 가져와 사용
     // - OS 매 부팅시 새로운 비밀키를 부여함
 
+
     public String create(String name) {
 
         // JWT의 만료일자 및 시간
         Date expiredDate = Date.from(Instant.now().plus(4, ChronoUnit.HOURS));
-        
+
         // 비밀키 생성
         // String secretKey = "qwertyuiopasdfghjklzxcvbnm1234567890";
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -56,19 +58,43 @@ public class JwtProvider {
         // JWT 생성
         // String jwt = Jwts.builder().signWith(key, SignatureAlgorithm.HS256).setSubject(name).setIssuedAt(new Date()).setExpiration(expiredDate).compact();
         String jwt = Jwts.builder()
-        // 서명 (암호화시 사용할 비밀키와 알고리즘을 전달)
-        .signWith(key, SignatureAlgorithm.HS256)
-        // 페이로드
-        // 작성자
-        .setSubject(name)
-        // 생성시간
-        .setIssuedAt(new Date())
-        // 만료시간
-        .setExpiration(expiredDate)
-        // 인코딩 (압축)
-        .compact();
+                // 서명 (암호화시 사용할 비밀키와 알고리즘을 전달)
+                .signWith(key, SignatureAlgorithm.HS256)
+                // 페이로드
+                // 작성자
+                .setSubject(name)
+                // 생성시간
+                .setIssuedAt(new Date())
+                // 만료시간
+                .setExpiration(expiredDate)
+                // 인코딩 (압축)
+                .compact();
 
         return jwt;
 
     }
+    
+
+    public String validate(String jwt) {
+
+        // jwt 검증 결과로 반환되는 payload가 저장될 변수
+        Claims claims = null;
+        
+        // 비밀키 생성
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
+        try {
+            // 비밀키를 이용하여 jwt를 검증 작업
+            claims = Jwts.parserBuilder()
+                   .setSigningKey(key)
+                   .build()
+                   .parseClaimsJws(jwt)
+                   .getBody();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+        return claims.getSubject();
+    }
+
 }
