@@ -20,6 +20,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.imwkdrh.springbasic.filter.JwtAuthenticationFilter;
+import com.imwkdrh.springbasic.handler.OAuth2SuccessHandler;
+import com.imwkdrh.springbasic.service.implement.OAuth2UserServiceImplement;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +41,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2UserServiceImplement oAuth2UserService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -85,7 +89,7 @@ public class WebSecurityConfig {
                         // permitAll(): 모든 클라이언트가 접근할 수 있도록 지정
                         // hasRole(권한): 특정 권한을 가진 클라이언트만 접근할 수 있도록 지정
                         // authenticated(): 인증된 모든 클라이언트가 접근할 수 있도록 지정
-                        .requestMatchers("/anyone/**", "/auth/**", "/oauth2/**" ).permitAll()
+                        .requestMatchers("/anyone/**", "/auth/**", "/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/sample/jwt/*").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/service").hasRole("ADMIN")
@@ -99,15 +103,17 @@ public class WebSecurityConfig {
                 // OAuth2 인증 처리
                 .oauth2Login(
                         oauth2 -> oauth2
+                        .authorizationEndpoint(endPoint -> endPoint.baseUri("/auth/sns"))
                                 .redirectionEndpoint(endPoint -> endPoint
-                        .baseUri("/oauth2/callback/*"))
-                )
+                                        .baseUri("/oauth2/callback/*"))
+                                .userInfoEndpoint(endPoint -> endPoint.userService(
+                                        oAuth2UserService))
+                                .successHandler(oAuth2SuccessHandler))
 
                 // 인증 및 인가 과정에서 발생한 예외를 직접 처리
                 .exceptionHandling(
                         exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(new FailedAuthenticationEntryPoint())
-                )
+                                .authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return security.build();
